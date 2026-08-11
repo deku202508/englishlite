@@ -11,7 +11,7 @@
   }
 
   var findCandidates = core.makeMatcher(BANK);
-  var DEFAULTS = { enabled: true, intensity: 0.2, hoverHint: true };
+  var DEFAULTS = { enabled: false, intensity: 0.2, hoverHint: true };
   var SKIP_SELECTOR = "script,style,textarea,input,select,option,noscript,pre,code,kbd,samp,var,title";
 
   var settings = Object.assign({}, DEFAULTS);
@@ -38,10 +38,16 @@
     var last = 0;
     for (var i = 0; i < plan.length; i++) {
       var c = plan[i];
-      if (c.start > last) frag.appendChild(document.createTextNode(text.slice(last, c.start)));
+      if (c.start > last) {
+        frag.appendChild(document.createTextNode(text.slice(last, c.start)));
+      } else if (i > 0) {
+        /* 与上一个替换紧挨（无间隔文本）：插入空格分隔英文，避免 "todayweather" 挤在一起 */
+        frag.appendChild(document.createTextNode(" "));
+      }
       var span = document.createElement("span");
       span.textContent = c.en;
       span.className = "esw-replaced";
+      span.style.fontFamily = '"Times New Roman", Times, serif'; /* 与中文字体区分 */
       span.setAttribute("data-zh", c.zh); /* 始终存原文，供恢复使用（hover 提示可关） */
       if (settings.hoverHint) span.title = c.zh;
       frag.appendChild(span);
@@ -75,6 +81,11 @@
     for (var i = 0; i < spans.length; i++) {
       var span = spans[i];
       if (!span.parentNode) continue;
+      /* 删除紧挨在 span 前的分隔空格（替换时插入的），让原文不带多余空格 */
+      var prev = span.previousSibling;
+      if (prev && prev.nodeType === Node.TEXT_NODE && prev.nodeValue === " ") {
+        prev.parentNode.removeChild(prev);
+      }
       var zh = span.getAttribute("data-zh") || span.getAttribute("title");
       if (!zh) continue;
       span.parentNode.replaceChild(document.createTextNode(zh), span);

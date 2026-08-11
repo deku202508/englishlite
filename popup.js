@@ -3,7 +3,7 @@
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
-  var DEFAULTS = { enabled: true, intensity: 0.2, hoverHint: true };
+  var DEFAULTS = { enabled: false, intensity: 0.2, hoverHint: true };
   var store = chrome.storage.local;
 
   store.get(DEFAULTS, function (s) {

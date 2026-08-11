@@ -8,11 +8,14 @@
   <h2>EnglishLite DOM 自测</h2>
   <div id="result" style="font-family:monospace;white-space:pre-wrap;background:#f5f5f5;padding:12px;border-radius:8px">运行中…</div>
   <div id="result2" style="font-family:monospace;white-space:pre-wrap;background:#fff8e1;padding:12px;border-radius:8px;margin-top:8px">阶段2（降强度实时减少）待运行…</div>
+  <div id="result3" style="font-family:monospace;white-space:pre-wrap;background:#e8f5e9;padding:12px;border-radius:8px;margin-top:8px">阶段3（紧挨空格+字体）待运行…</div>
   <div id="fixture">
     <p>你好，我叫小明，很高兴认识你。</p>
     <p>我很好，谢谢，明天见！</p>
     <p>script 和 code 不应被替换：<code>你好</code></p>
   </div>
+  <!-- 相邻词替换测试：今天+天气 紧挨 -->
+  <div id="f-adj"><p>今天天气很好</p></div>
   <script>
     /* 模拟 chrome.storage.local（无扩展环境下测试 content.js 用，intensity=1 全量替换以便断言） */
     window.__storageListener = null;
@@ -47,6 +50,18 @@
       ].join('\n');
       /* 说明：本结果文本随后也会被插件处理（title/code 里的「你好」会变成 Hello），
          这正是「动态内容也会被替换」的证明；fixture 里的 <code>你好</code> 则始终不被替换。 */
+      /* 阶段1b：相邻替换的空格 + Times New Roman 字体 */
+      var adj = document.getElementById('f-adj');
+      var adjSpans = adj.querySelectorAll('span.esw-replaced');
+      var adjSpaceOk = adjSpans.length >= 2 && adjSpans[0].nextSibling &&
+                       adjSpans[0].nextSibling.nodeValue === ' ';
+      var adjFontOk = adjSpans.length >= 1 &&
+                      adjSpans[0].style.fontFamily.indexOf('Times New Roman') !== -1;
+      var r3 = document.getElementById('result3');
+      r3.dataset.pass = (adjSpaceOk && adjFontOk) ? 'PASS' : 'FAIL';
+      r3.textContent = '阶段3: 相邻替换空格=' + (adjSpaceOk ? '✓' : '✗') +
+        '  Times New Roman字体=' + (adjFontOk ? '✓' : '✗') +
+        '  实际HTML: ' + adj.innerHTML;
     }, 300);
 
     /* 阶段2：模拟强度 1.0 → 0.1，验证「调低实时变少」（restoreAll + 按新强度重扫） */
