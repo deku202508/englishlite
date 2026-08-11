@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "无痛英语 EnglishLite",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "随机将页面中的常用中文替换为英文，悬停可看中文释义，无痛积累常用词汇",
   "permissions": ["storage"],
   "action": {

@@ -9,6 +9,7 @@
   <div id="result" style="font-family:monospace;white-space:pre-wrap;background:#f5f5f5;padding:12px;border-radius:8px">运行中…</div>
   <div id="result2" style="font-family:monospace;white-space:pre-wrap;background:#fff8e1;padding:12px;border-radius:8px;margin-top:8px">阶段2（降强度实时减少）待运行…</div>
   <div id="result3" style="font-family:monospace;white-space:pre-wrap;background:#e8f5e9;padding:12px;border-radius:8px;margin-top:8px">阶段3（紧挨空格+字体）待运行…</div>
+  <div id="result4" style="font-family:monospace;white-space:pre-wrap;background:#e3f2fd;padding:12px;border-radius:8px;margin-top:8px">阶段4（跨节点相邻空格）待运行…</div>
   <div id="fixture">
     <p>你好，我叫小明，很高兴认识你。</p>
     <p>我很好，谢谢，明天见！</p>
@@ -16,6 +17,8 @@
   </div>
   <!-- 相邻词替换测试：今天+天气 紧挨 -->
   <div id="f-adj"><p>今天天气很好</p></div>
+  <!-- 跨文本节点测试：页面用 span 分别包裹相邻词 -->
+  <div id="f-cross"><p><span>朋友</span><span>简单介绍</span></p></div>
   <script>
     /* 模拟 chrome.storage.local（无扩展环境下测试 content.js 用，intensity=1 全量替换以便断言） */
     window.__storageListener = null;
@@ -26,9 +29,9 @@
       }
     };
   </script>
-  <script src="../words.js"></script>
-  <script src="../core.js"></script>
-  <script src="../content.js"></script>
+  <script src="../words.js?v=8"></script>
+  <script src="../core.js?v=8"></script>
+  <script src="../content.js?v=8"></script>
   <script>
     setTimeout(function () {
       var html = document.getElementById('fixture').innerHTML;
@@ -62,6 +65,17 @@
       r3.textContent = '阶段3: 相邻替换空格=' + (adjSpaceOk ? '✓' : '✗') +
         '  Times New Roman字体=' + (adjFontOk ? '✓' : '✗') +
         '  实际HTML: ' + adj.innerHTML;
+      /* 阶段1c：跨文本节点相邻（页面 span 包裹）也应补空格 */
+      var cross = document.getElementById('f-cross');
+      var crossSpans = cross.querySelectorAll('span.esw-replaced');
+      var crossText = cross.textContent;
+      var crossSpaceOk = crossSpans.length >= 3 &&
+                         crossSpans[1].previousSibling && crossSpans[1].previousSibling.nodeValue === ' ' &&
+                         crossSpans[2].previousSibling && crossSpans[2].previousSibling.nodeValue === ' ';
+      var r4 = document.getElementById('result4');
+      r4.dataset.pass = crossSpaceOk ? 'PASS' : 'FAIL';
+      r4.textContent = '阶段4: 跨节点相邻空格=' + (crossSpaceOk ? '✓' : '✗') +
+        '  span数=' + crossSpans.length + '  textContent="' + crossText + '"';
     }, 300);
 
     /* 阶段2：模拟强度 1.0 → 0.1，验证「调低实时变少」（restoreAll + 按新强度重扫） */

@@ -34,7 +34,35 @@
     var plan = core.chooseByProbability(findCandidates(text), settings.intensity);
     if (!plan.length) { processed.add(node); return; }
 
+    /* 跨文本节点相邻：找「视觉上紧贴的前一个兄弟」（可能隔着页面 wrapper span/strong），
+       若其以替换英文结尾 → 本节点开头补空格分隔英文。
+       仅当第一个替换词紧贴节点开头时补（plan[0].start===0），中文开头不补
+       （"friend的family" 中文本身即分隔，避免 "friend 的family"）。 */
+    var prevNode = node.previousSibling;
+    var cur = node;
+    while (!prevNode && cur.parentNode) {
+      cur = cur.parentNode;
+      prevNode = cur.previousSibling;
+    }
+    var prevSpan = false;
+    if (prevNode && prevNode.nodeType === Node.ELEMENT_NODE) {
+      if (prevNode.classList && prevNode.classList.contains("esw-replaced")) {
+        prevSpan = true;
+      } else if (prevNode.querySelector) {
+        var prevReplaced = prevNode.querySelectorAll("span.esw-replaced");
+        if (prevReplaced.length) {
+          var lastSpan = prevReplaced[prevReplaced.length - 1];
+          var after = lastSpan.nextSibling;
+          prevSpan = !after ||
+                     (after.nodeType === Node.TEXT_NODE && !after.nodeValue.trim()) ||
+                     (after.nodeType === Node.ELEMENT_NODE && !after.textContent.trim());
+        }
+      }
+    }
+    var needLeadSpace = prevSpan && plan.length > 0 && plan[0].start === 0;
+
     var frag = document.createDocumentFragment();
+    if (needLeadSpace) frag.appendChild(document.createTextNode(" "));
     var last = 0;
     for (var i = 0; i < plan.length; i++) {
       var c = plan[i];
