@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>无痛英语</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #fff;
+      color: #1c1c1e;
+      padding: 16px;
+      user-select: none;
+    }
+    header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .logo {
+      width: 40px; height: 40px; border-radius: 11px;
+      background: #34c759; color: #fff; font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 16px; font-weight: 600; }
+    header p { font-size: 11px; color: #8e8e93; margin-top: 2px; }
+    .spacer { flex: 1; }
+
+    .card {
+      background: #f2f2f7; border-radius: 14px; padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .row { display: flex; align-items: center; justify-content: space-between; }
+    .row .label { font-size: 13px; font-weight: 500; }
+    .row .value { font-size: 13px; color: #34c759; font-weight: 600; }
+
+    input[type="range"] {
+      width: 100%; margin-top: 12px; -webkit-appearance: none; appearance: none;
+      height: 4px; border-radius: 2px; background: #d1d1d6; outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.05);
+      cursor: pointer;
+    }
+    .hint { font-size: 11px; color: #8e8e93; margin-top: 8px; }
+
+    .switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0; background: #e9e9eb;
+      border-radius: 13px; transition: background .2s; cursor: pointer;
+    }
+    .slider::before {
+      content: ""; position: absolute; width: 22px; height: 22px;
+      left: 2px; top: 2px; background: #fff; border-radius: 50%;
+      transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    }
+    input:checked + .slider { background: #34c759; }
+    input:checked + .slider::before { transform: translateX(18px); }
+
+    footer { text-align: center; font-size: 11px; color: #aeaeb2; margin-top: 4px; }
+    footer b { color: #8e8e93; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EN</div>
+    <div>
+      <h1>无痛英语</h1>
+      <p>页面随机中 → 英替换</p>
+    </div>
+    <div class="spacer"></div>
+    <label class="switch">
+      <input type="checkbox" id="enabled" checked>
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <section class="card">
+    <div class="row">
+      <span class="label">替换强度</span>
+      <span class="value" id="intensityVal">20%</span>
+    </div>
+    <input type="range" id="intensity" min="5" max="60" step="5" value="20">
+    <div class="hint">每次刷新页面时随机替换一部分，反复刷新即可反复练习</div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <span class="label">悬停显示中文</span>
+      <label class="switch">
+        <input type="checkbox" id="hoverHint" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </section>
+
+  <footer>内置 <b id="count">200+</b> 词句 · 长词短句都有</footer>
+
+  <script src="words.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

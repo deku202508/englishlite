@@ -1,0 +1,11 @@
+# 敏感信息
+.gh_token.tmp
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+*.log
+
+# Python
+__pycache__/
+*.pyc

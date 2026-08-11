@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>EnglishLite DOM 自测</title>
+</head>
+<body>
+  <h2>EnglishLite DOM 自测</h2>
+  <div id="result" style="font-family:monospace;white-space:pre-wrap;background:#f5f5f5;padding:12px;border-radius:8px">运行中…</div>
+  <div id="result2" style="font-family:monospace;white-space:pre-wrap;background:#fff8e1;padding:12px;border-radius:8px;margin-top:8px">阶段2（降强度实时减少）待运行…</div>
+  <div id="fixture">
+    <p>你好，我叫小明，很高兴认识你。</p>
+    <p>我很好，谢谢，明天见！</p>
+    <p>script 和 code 不应被替换：<code>你好</code></p>
+  </div>
+  <script>
+    /* 模拟 chrome.storage.local（无扩展环境下测试 content.js 用，intensity=1 全量替换以便断言） */
+    window.__storageListener = null;
+    window.chrome = {
+      storage: {
+        local: { get: function (defs, cb) { cb({ enabled: true, intensity: 1, hoverHint: true }); } },
+        onChanged: { addListener: function (fn) { window.__storageListener = fn; } }
+      }
+    };
+  </script>
+  <script src="../words.js"></script>
+  <script src="../core.js"></script>
+  <script src="../content.js"></script>
+  <script>
+    setTimeout(function () {
+      var html = document.getElementById('fixture').innerHTML;
+      var ok1 = html.indexOf('Hello') !== -1;
+      var ok2 = html.indexOf('Nice to meet you') !== -1;
+      var ok3 = html.indexOf('I\'m fine') !== -1;
+      var ok4 = html.indexOf('See you tomorrow') !== -1;
+      var ok5 = html.indexOf('<code>你好</code>') !== -1; /* code 内不应替换 */
+      var ok6 = html.indexOf('我叫小明') !== -1; /* 词库外的词保留 */
+      document.getElementById('result').textContent = [
+        '替换 Hello:            ' + (ok1 ? '✓' : '✗'),
+        '替换短句 Nice to meet you: ' + (ok2 ? '✓' : '✗'),
+        '替换 I\'m fine:        ' + (ok3 ? '✓' : '✗'),
+        '替换 See you tomorrow: ' + (ok4 ? '✓' : '✗'),
+        'code 标签内未动:       ' + (ok5 ? '✓' : '✗'),
+        '词库外文字保留:        ' + (ok6 ? '✓' : '✗'),
+        '---- 替换后 HTML ----',
+        html
+      ].join('\n');
+      /* 说明：本结果文本随后也会被插件处理（title/code 里的「你好」会变成 Hello），
+         这正是「动态内容也会被替换」的证明；fixture 里的 <code>你好</code> 则始终不被替换。 */
+    }, 300);
+
+    /* 阶段2：模拟强度 1.0 → 0.1，验证「调低实时变少」（restoreAll + 按新强度重扫） */
+    setTimeout(function () {
+      if (!window.__storageListener) { document.getElementById('result2').textContent = '阶段2: 无法触发（listener 未注册）'; return; }
+      window.__storageListener({ intensity: { newValue: 0.1 } }, 'local');
+      setTimeout(function () {
+        var r2 = document.getElementById('result2');
+        var spans = document.querySelectorAll('#fixture span.esw-replaced').length;
+        var pass = spans < 3; /* 全量时 5 个，降 10% 后应大幅减少 */
+        r2.dataset.pass = pass ? 'PASS' : 'FAIL';
+        r2.textContent = '阶段2: 降强度后 span 数 = ' + spans + '（初始全量 5，期望 < 3）' + (pass ? ' ✓' : ' ✗');
+      }, 500); /* debounce 120ms + 余量 */
+    }, 600);
+  </script>
+</body>
+</html>
