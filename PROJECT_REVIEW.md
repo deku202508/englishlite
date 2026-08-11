@@ -1,7 +1,16 @@
 # PROJECT_REVIEW — 无痛英语 EnglishLite
 
-日期：2026-08-11（v2：词库扩充到四级 + 边界规则重设计）
+日期：2026-08-11（v3：AI 图标 + GitHub 发布）
 状态：完成，单元测试 + DOM 端到端全部通过
+
+## v3 变更
+- **AI 生成图标**：ComfyUI（albedobaseXL）生成书本+对话气泡底图（语言学习主题，
+  绿色极简无乱码），PIL 后处理为 16/48/128 圆角图标（22% 圆角，Apple 风格）
+- **GitHub 发布**：https://github.com/deku202508/englishlite （public）
+  - gh CLI 交互式 auth 在此环境 pty 下 Enter 键传不进去 → 改用手动 GitHub
+    device flow（client_id=gh CLI 公开 id）+ curl 轮询拿 token → git 直推
+  - git 需显式配代理：`git config --global http.https://github.com.proxy http://127.0.0.1:7897`
+  - 凭据存 ~/.git-credentials（store helper），.gh_token.tmp 已 gitignore 并清理
 
 ## v2 变更
 - 词库 243 → **6656 条**：接入 qwerty-learner 开源 CET4 词表（2607 词），
